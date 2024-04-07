@@ -8,7 +8,6 @@ debug = 0
 # hard:   harwdare fpu, hard abi
 fpu = soft
 
-
 # names of directories for compiled objects
 BIN_DIR = bin
 OBJ_DIR = obj
@@ -27,7 +26,6 @@ SRC_DIRS = \
 # these locations should be specified relative to the makefile location.
 INC_DIRS = \
 	src/driver/include
-
 
 
 # sets OPTIMIZE_FLAGS based on debug above
@@ -51,24 +49,49 @@ endif
 CC = arm-none-eabi-gcc
 
 # cpu target and instruction set
-CFLAGS = -mcpu=cortex-m4
+COMMON_FLAGS = -mcpu=cortex-m4
 # instruction set (all ARM Cortex-M only support thumb instruction sets)
-CFLAGS += -mthumb
-# C standard to compile against. gnu17 means use C17 standard and add GNU extensions
-CFLAGS += -std=gnu17
-# floating point model
-CFLAGS += $(FLOAT_FLAGS)
+COMMON_FLAGS += -mthumb
+# floating point flags
+COMMON_FLAGS += $(FLOAT_FLAGS)
+# use newlib nano
+COMMON_FLAGS += --specs=nano.specs
+
+# compiler, assembler, and linker flags all start with the same flags
+CFLAGS = $(COMMON_FLAGS)
+ASFLAGS = $(COMMON_FLAGS)
+LDFLAGS = $(COMMON_FLAGS)
+
+# add on compiler-specific flags
 # optimization flags
 CFLAGS += $(OPTIMIZE_FLAGS)
-# use newlib nano
-CFLAGS += --specs=nano.specs
+# C standard to compile against. gnu17 means use C17 standard and add GNU extensions
+CFLAGS += -std=gnu17
 # put functions and data into individual sections
 CFLAGS += -ffunction-sections -fdata-sections
 # enable all warning messages from the compiler
 CFLAGS += -Wall
 
+# add on compiler-specific flags
+# optimization flags
+ASFLAGS += $(OPTIMIZE_FLAGS)
 
+# add on linker-specific flags
+# specify the linker script to use
+# TODO: add in an actual linker script
+LDFLAGS += -T"linker.ld"
+# if any system libraries are used, include their code with the executable by statically linking it
+LDFLAGS += -static
+# remove empty sections only if not for debug
+LDFLAGS += -Wl,--gc-sections
 
+# TODO: understand which specs to actually specify. Is there a point in using nano.specs if we can't
+# use any system libraries anyway since we're baremetal?
+# is there any point in linking -lc -lm if those also get removed by the linker script?
+# flags to investigate:
+# LDFLAGS += --specs=nosys.specs 
+# LDFLAGS += --specs=nano.specs
+# LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
 
 # creates the list of include flags to pass to the compiler
@@ -80,35 +103,43 @@ VPATH = $(SRC_DIRS)
 
 # creates the list of .c source files by looking for every .c file in the source directories
 CSRCS := $(foreach x, $(SRC_DIRS), $(wildcard $(addprefix $(x)/*,.c)))
-# eventually we will also be looking for .S and .s assembly files in the source directories
+# creates the list of .S (uppercase 'S') source files by looking for every .S file in the source directories
+SSRCS := $(foreach x, $(SRC_DIRS), $(wildcard $(addprefix $(x)/*,.S)))
+# creates the list of .s (lowercase 's') source files by looking for every .s file in the source directories
+sSRCS := $(foreach x, $(SRC_DIRS), $(wildcard $(addprefix $(x)/*,.s)))
 
 # creates a list of all .c, .S, and .s source files in one place
-SRCS := $(CSRCS)
-
+OBJ_SRCS := $(CSRCS) $(SSRCS) $(sSRCS)
 # creates a list of object files by taking every source file, removing the file extension
 # and replacing it with an "o"
-OBJS := $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(notdir $(basename $(SRCS)))))
-# creates a list of dependecy files by taking every source file, removing the file extension
-# and replacing it with a "d"
-DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(SRCS)))))
+OBJS := $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(notdir $(basename $(OBJ_SRCS)))))
 
-# rule for the overall image being created. This is the default rule that is called
+# creates a list of all source files that need a dependency file
+DEP_SRCS := $(CSRCS) $(SSRCS)
+# creates a list of dependecy files by taking every .c and .S source file, removing the file extension
+# and replacing it with a "d"
+DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(DEP_SRCS)))))
+
+
+
+# rule for linking the overall image from object files. This is the default rule that is called
 # if you type "make" with no arguments. The prerequisites are the object files and the existence
 # of the binary directory. 
 # listing pdebug as a prerequisite means it gets called everytime this rule is ran.
 $(TARGET): $(OBJS) pdebug | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
-# rule to make object files. The prerequisites listed here do not include the header files needed
-# to compile each object file. Those prerequisites are added by the dependency (.d) files.
+# rule to make object files from .c source files. The recipe to build the .o file is specified here. 
+# the prerequisites listed here do not include the header (.h) files needed to compile each object file
+# header file prerequisites are added by the dependency (.d) files.
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(INC_FLAGS) -c $< -o $@
 
-# rule to make the dependency files. There is one dependency file per .c file (or is it per source file?).
+# rule to make the dependency files for .c source files. There is one dependency file per .c file.
 # the dependency file lists all the prerequisite headers for each object (.o) file.
 $(DEP_DIR)/%.d: %.c | $(DEP_DIR)
 	@echo DEPEND: $(CC) -MM $(CFLAGS) $<
-#  The purpose of the sed command is to translate (for example):
+# The purpose of the sed command is to translate (for example):
 # main.o : main.c defs.h
 # into:
 # main.o main.d : main.c defs.h
@@ -117,9 +148,38 @@ $(DEP_DIR)/%.d: %.c | $(DEP_DIR)
 	sed 's,\($*\.o\)[ :]*,$(OBJ_DIR)/\1 $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
+# rule to make object files from .S (uppercase 'S') source files. The recipe to build the .o file is specified here.
+# the prerequisites listed here do not include the header (.h) files needed to compile each object file
+# header file prerequisites are added by the dependency (.d) files.
+$(OBJ_DIR)/%.o: %.S | $(OBJ_DIR)
+	$(CC) $(ASFLAGS) $(INC_FLAGS) -c $< -o $@
+
+# rule to make the dependency files for .S source files. There is one dependency file per .S file.
+# the dependency file lists all the prerequisite headers for each object (.o) file.
+$(DEP_DIR)/%.d: %.S | $(DEP_DIR)
+	@echo DEPEND: $(CC) -MM $(CFLAGS) $<
+# The purpose of the sed command is to translate (for example):
+# main.o : main.S defs.h
+# into:
+# main.o main.d : main.S defs.h
+	@set -e; rm -f $@; \
+	$(CC) -MM $(ASFLAGS) $(INC_FLAGS) $< > $@.$$$$; \
+	sed 's,\($*\.o\)[ :]*,$(OBJ_DIR)/\1 $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+# rule to make object files from .s (lowercase 's') source files 
+# the prerequisites listed here do not include the header (.h) files needed to compile each object file
+# header file prerequisites are added by the dependency (.d) files.
+$(OBJ_DIR)/%.o: %.s | $(OBJ_DIR)
+	$(CC) $(ASFLAGS) $(INC_FLAGS) -c $< -o $@
+
+# no rule needed to make depdency files for .s source files
+# .s (lowercase 's') cannot have "#include" or other c preprocessor stuff
+
 # rule to make the build directories if they do not already exist
 $(BIN_DIR) $(OBJ_DIR) $(DEP_DIR):
 	mkdir -p $@
+
 
 # .PHONY targets will be run every time they are called.
 # any special recipes you want to run by name should be a phony target.
