@@ -71,6 +71,8 @@ CFLAGS += -std=gnu17
 CFLAGS += -ffunction-sections -fdata-sections
 # enable all warning messages from the compiler
 CFLAGS += -Wall
+# enable some extra warnings from the compiler
+CFLAGS += -Wextra
 
 # add on compiler-specific flags
 # optimization flags
