@@ -14,18 +14,19 @@ OBJ_DIR = obj
 DEP_DIR = dep
 
 # name of the output image
-TARGET := $(BIN_DIR)/test.out
+TARGET_NAME := test
+TARGET := $(BIN_DIR)/$(TARGET_NAME).out
 
 # locations of directories containing source files.
 # these locations should be specified relative to the makefile location.
 SRC_DIRS = \
 	src \
-	src/driver
+	# src/driver
 
 # locations of directories containing header files.
 # these locations should be specified relative to the makefile location.
 INC_DIRS = \
-	src/driver/include
+	# src/driver/include
 
 
 # sets OPTIMIZE_FLAGS based on debug above
@@ -54,8 +55,9 @@ COMMON_FLAGS = -mcpu=cortex-m4
 COMMON_FLAGS += -mthumb
 # floating point flags
 COMMON_FLAGS += $(FLOAT_FLAGS)
-# use newlib nano
-COMMON_FLAGS += --specs=nano.specs
+# use no system libraries
+COMMON_FLAGS += --specs=nosys.specs
+COMMON_FLAGS += -nostdlib
 
 # compiler, assembler, and linker flags all start with the same flags
 CFLAGS = $(COMMON_FLAGS)
@@ -80,12 +82,12 @@ ASFLAGS += $(OPTIMIZE_FLAGS)
 
 # add on linker-specific flags
 # specify the linker script to use
-# TODO: add in an actual linker script
-LDFLAGS += -T"linker.ld"
+LDFLAGS += -T"STM32WL55JCIX_FLASH.ld"
 # if any system libraries are used, include their code with the executable by statically linking it
 LDFLAGS += -static
 # remove empty sections only if not for debug
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
 
 # TODO: understand which specs to actually specify. Is there a point in using nano.specs if we can't
 # use any system libraries anyway since we're baremetal?
