@@ -60,7 +60,7 @@ defined in linker script */
 
   .section .text.Reset_Handler
   .weak Reset_Handler
-  .type Reset_Handler, %function
+  .type Reset_Handler, STT_FUNC
 Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
@@ -129,7 +129,7 @@ Infinite_Loop:
 *
 ******************************************************************************/
   .section .isr_vector,"a",%progbits
-  .type g_pfnVectors, %object
+  .type g_pfnVectors, STT_OBJECT
 
 g_pfnVectors:
   .word _estack
@@ -434,4 +434,3 @@ g_pfnVectors:
 	.weak	DMAMUX1_OVR_IRQHandler
 	.thumb_set DMAMUX1_OVR_IRQHandler,Default_Handler
 
-	.weak	SystemInit

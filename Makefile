@@ -88,6 +88,7 @@ LDFLAGS += -static
 # remove empty sections only if not for debug
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
+# LDFLAGS += -z defs
 
 # TODO: understand which specs to actually specify. Is there a point in using nano.specs if we can't
 # use any system libraries anyway since we're baremetal?
