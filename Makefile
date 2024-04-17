@@ -25,9 +25,18 @@ SRC_DIRS = \
 
 # locations of directories containing header files.
 # these locations should be specified relative to the makefile location.
-INC_DIRS = \
-	# src/driver/include
+INC_DIRS = 		\
+	src/inc 	\
+	src/CMSIS_inc
 
+# predefined macros
+DEFINES = 		\
+	STM32WL 	\
+	STM32WL55xx
+
+
+# creates the list of define flags to pass to the compiler
+DEFINE_FLAGS := $(addprefix -D,$(DEFINES))
 
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
@@ -55,6 +64,8 @@ COMMON_FLAGS = -mcpu=cortex-m4
 COMMON_FLAGS += -mthumb
 # floating point flags
 COMMON_FLAGS += $(FLOAT_FLAGS)
+# define flags
+COMMON_FLAGS += $(DEFINE_FLAGS)
 # use no system libraries
 COMMON_FLAGS += --specs=nosys.specs
 COMMON_FLAGS += -nostdlib
@@ -85,17 +96,15 @@ ASFLAGS += $(OPTIMIZE_FLAGS)
 LDFLAGS += -T"STM32WL55JCIX_FLASH.ld"
 # if any system libraries are used, include their code with the executable by statically linking it
 LDFLAGS += -static
+# note: if you want to use the "-Wl" to pass options to the linker, there must be NO SPACES
 # remove empty sections only if not for debug
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,-z,max-page-size=0x800
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
 # LDFLAGS += -z defs
 
-# TODO: understand which specs to actually specify. Is there a point in using nano.specs if we can't
-# use any system libraries anyway since we're baremetal?
 # is there any point in linking -lc -lm if those also get removed by the linker script?
 # flags to investigate:
-# LDFLAGS += --specs=nosys.specs 
-# LDFLAGS += --specs=nano.specs
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
 
