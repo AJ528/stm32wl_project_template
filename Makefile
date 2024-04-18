@@ -15,7 +15,7 @@ DEP_DIR = dep
 
 # name of the output image
 TARGET_NAME := test
-TARGET := $(BIN_DIR)/$(TARGET_NAME).out
+TARGET := $(BIN_DIR)/$(TARGET_NAME).elf
 
 # locations of directories containing source files.
 # these locations should be specified relative to the makefile location.
@@ -34,17 +34,16 @@ DEFINES = 		\
 	STM32WL 	\
 	STM32WL55xx
 
-
-# creates the list of define flags to pass to the compiler
-DEFINE_FLAGS := $(addprefix -D,$(DEFINES))
-
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
+	DEFINES += DEBUG
 	OPTIMIZE_FLAGS = -ggdb3 -Og
 else
 # change optimization options to whatever suits you
+	DEFINES += RELEASE
 	OPTIMIZE_FLAGS = -O2
 endif
+
 
 # sets FLOAT_FLAGS based on fpu above
 ifeq ($(fpu), softfp)
@@ -54,6 +53,13 @@ else ifeq ($(fpu), hard)
 else
 	FLOAT_FLAGS = -mfloat-abi=soft
 endif
+
+# creates the list of define flags to pass to the compiler
+DEFINE_FLAGS := $(addprefix -D,$(DEFINES))
+# creates the list of include flags to pass to the compiler
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+# adds the source directories to Make's search path
+VPATH = $(SRC_DIRS)
 
 # compiler you want to use
 CC = arm-none-eabi-gcc
@@ -106,13 +112,6 @@ LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
 # is there any point in linking -lc -lm if those also get removed by the linker script?
 # flags to investigate:
 # LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
-
-
-# creates the list of include flags to pass to the compiler
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-# adds the source directories to Make's search path
-VPATH = $(SRC_DIRS)
-
 
 
 # creates the list of .c source files by looking for every .c file in the source directories
