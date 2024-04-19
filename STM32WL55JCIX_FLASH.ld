@@ -74,7 +74,7 @@ SECTIONS
     *(.text*)          /* .text* sections (code) */
 
     . = ALIGN(4);
-    _etext = .;        /* define a global symbols at end of code */
+    _etext = .;        /* define a global symbol at end of code */
   } >FLASH
 
   /* Constant data into "FLASH" Rom type memory */
@@ -156,8 +156,8 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
   } >RAM
 
-  /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
-  ._user_heap_stack :
+  /* stack section, used to check that there is enough RAM left */
+  .stack :
   {
     . = ALIGN(8);
     . = . + _Min_Heap_Size;
@@ -165,5 +165,9 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
+/* 
+  contains metadata about the compiled object. 
+  Things like CPU architecture, CPU name, etc...
+ */
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }

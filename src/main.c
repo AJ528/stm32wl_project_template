@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "printf.h"
 
 int main(void)
 {
@@ -9,6 +10,8 @@ int main(void)
     i = i >> 1;
 
     i = i + j;
+
+    printf_("Hello world!\n");
 
     return (i);
 }

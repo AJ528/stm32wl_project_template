@@ -1,3 +1,6 @@
+# while it is tempting to adjust this makefile so you can have a debug and release target
+# I have been unable to find any elegant way to accomplish this.
+
 # set debug to 0 or 1
 # adjust optimization flag accordingly below
 debug = 0
@@ -21,18 +24,22 @@ TARGET := $(BIN_DIR)/$(TARGET_NAME).elf
 # these locations should be specified relative to the makefile location.
 SRC_DIRS = \
 	src \
-	# src/driver
+	src/drivers
 
 # locations of directories containing header files.
 # these locations should be specified relative to the makefile location.
 INC_DIRS = 		\
 	src/inc 	\
-	src/CMSIS_inc
+	src/drivers/inc		\
+	src/drivers/CMSIS_inc
 
 # predefined macros
 DEFINES = 		\
 	STM32WL 	\
 	STM32WL55xx
+# restrict what can be printed so we don't use doubles
+DEFINES += PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS=0
+	
 
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
@@ -75,6 +82,9 @@ COMMON_FLAGS += $(DEFINE_FLAGS)
 # use no system libraries
 COMMON_FLAGS += --specs=nosys.specs
 COMMON_FLAGS += -nostdlib
+# use no builtin functions 
+# this prevent gcc from optimizing printf() if you decide to roll your own
+COMMON_FLAGS += -fno-builtin
 
 # compiler, assembler, and linker flags all start with the same flags
 CFLAGS = $(COMMON_FLAGS)
@@ -107,6 +117,7 @@ LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-z,max-page-size=0x800
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
+LDFLAGS += -lgcc
 # LDFLAGS += -z defs
 
 # is there any point in linking -lc -lm if those also get removed by the linker script?
