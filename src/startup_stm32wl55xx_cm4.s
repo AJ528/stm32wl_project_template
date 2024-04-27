@@ -27,13 +27,6 @@
 .syntax unified
 .thumb
 
-/*
- * since these options are passed as command-line arguments, I don't believe they're needed here
- * .cpu cortex-m4
- * .fpu softvfp
- */
-
-
 .global g_pfnVectors
 .global Default_Handler
 
@@ -189,7 +182,7 @@ g_pfnVectors:
   .word	LPUART1_IRQHandler                   			/* LPUART1 global interrupt                           */
   .word	LPTIM1_IRQHandler                    			/* LPtimer 1 global interrupt                         */
   .word	LPTIM2_IRQHandler                    			/* LPtimer 2 global interrupt                         */
-  .word	EXTI15_10_IRQHandler                 			/* EXTI line 15_10] interrupt through EXTI            */
+  .word	EXTI15_10_IRQHandler                 			/* EXTI line 15_10 interrupt through EXTI             */
   .word	RTC_Alarm_IRQHandler                 			/* RTC Alarms A & B interrupt                         */
   .word	LPTIM3_IRQHandler                    			/* LPtimer 3 global interrupt                         */
   .word	SUBGHZSPI_IRQHandler                 			/* SUBGHZSPI global interrupt                         */

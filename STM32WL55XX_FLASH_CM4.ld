@@ -1,37 +1,3 @@
-/*
-******************************************************************************
-**
-**  File        : LinkerScript.ld
-**
-**  Author      : STM32CubeIDE
-**
-**  Abstract    : Linker script for STM32WL55xC Device
-**                      256Kbytes FLASH
-**                      64Kbytes RAM
-**
-**                Set heap size, stack size and stack location according
-**                to application requirements.
-**
-**                Set memory bank area and size if external memory is used.
-**
-**  Target      : STMicroelectronics STM32
-**
-**  Distribution: The file is distributed as is without any warranty
-**                of any kind.
-**
-*****************************************************************************
-** @attention
-**
-** Copyright (c) 2024 STMicroelectronics.
-** All rights reserved.
-**
-** This software is licensed under terms that can be found in the LICENSE file
-** in the root directory of this software component.
-** If no LICENSE file comes with this software, it is provided AS-IS.
-**
-*****************************************************************************
-*/
-
 /* Entry Point */
 /* 
  technically, I'm not sure if an entry point is necessary since this is an embedded system
@@ -41,13 +7,13 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
+_estack = ORIGIN(RAM) + LENGTH(RAM); /* end of RAM */
 
 _Min_Heap_Size = 0x000; /* required amount of heap  */
-
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Memories definition */
+/* this information is given in the datasheet or other documentation */
 MEMORY
 {
   RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 0x00010000
@@ -58,15 +24,18 @@ MEMORY
 /* Sections */
 SECTIONS
 {
-  /* The startup code into "FLASH" Rom type memory */
+  /* Interrupt Service Routines must be the first section placed in flash memory.
+     This is because the interrupt vector table is located at address 0x00 by default.
+     (technically, this table can be moved once the MCU is running) */
   .isr_vector :
   {
     . = ALIGN(4);
-    KEEP(*(.isr_vector)) /* Startup code */
+    KEEP(*(.isr_vector)) /* interrupt table */
     . = ALIGN(4);
   } >FLASH
 
-  /* The program code and other data into "FLASH" Rom type memory */
+  /* normal program code instructions is compiled into ".text" sections, and these
+     sections should also be placed in flash memory */
   .text :
   {
     . = ALIGN(4);
@@ -77,7 +46,8 @@ SECTIONS
     _etext = .;        /* define a global symbol at end of code */
   } >FLASH
 
-  /* Constant data into "FLASH" Rom type memory */
+  /* variables defined as constant and other unchanging data is compiled into
+     ".rodata" sections, and these should also be placed in flash memory */
   .rodata :
   {
     . = ALIGN(4);
@@ -92,7 +62,7 @@ SECTIONS
    record of your stack trace in case you want to use it to unwind the stack or
    print it because some exception failed (C doesn't really do exceptions, at 
    least not natively)
-   */
+  */
 
   .ARM.extab :
   {
@@ -111,9 +81,7 @@ SECTIONS
   } >FLASH
 
 
-
-
-  /* Used by the startup to initialize data */
+  /* Used by the startup function to initialize data */
   _sidata = LOADADDR(.data);
 
   /* 
@@ -137,12 +105,15 @@ SECTIONS
  the .data section is for initialized objects meant for RAM, but they cannot
  exist in RAM until the MCU is powered up. After power-up, but before calling
  main(), the objects are copied from FLASH to their correct location in RAM.
- */
+*/
   } >RAM AT> FLASH
 
-  /* Uninitialized data section into "RAM" Ram type memory */
+  /* Uninitialized data section into "RAM" type memory */
 /* 
  unitialized (and zero-initialized) global and static objects are put in the .bss section.
+ the .bss section should be "stored" in RAM, but since RAM is volatile and these variables
+ are 0, that just means we reserve space for these variables in RAM, and then at startup
+ we initialize the data in the those reserved spaces to 0.
 */
   .bss :
   {
@@ -168,6 +139,6 @@ SECTIONS
 /* 
   contains metadata about the compiled object. 
   Things like CPU architecture, CPU name, etc...
- */
+*/
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }

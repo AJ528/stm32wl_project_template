@@ -3,13 +3,16 @@
 
 # set debug to 0 or 1
 # adjust optimization flag accordingly below
-debug = 0
+debug = 1
+
 # set fpu to soft, softfp or hard
 # soft is also for when you aren't using the FPU
 # soft:   software fpu, soft abi
 # softfp: hardware fpu, soft abi
 # hard:   harwdare fpu, hard abi
 fpu = soft
+# IMPORTANT: none of the STM32WL microcontrollers have a hardware FPU,
+# so this setting should always be set to "soft".
 
 # names of directories for compiled objects
 BIN_DIR = bin
@@ -24,22 +27,21 @@ TARGET := $(BIN_DIR)/$(TARGET_NAME).elf
 # these locations should be specified relative to the makefile location.
 SRC_DIRS = \
 	src \
-	src/drivers
+	drivers \
+	drivers/utilities
 
 # locations of directories containing header files.
 # these locations should be specified relative to the makefile location.
-INC_DIRS = 		\
-	src/inc 	\
-	src/drivers/inc		\
-	src/drivers/CMSIS_inc
+INC_DIRS = \
+	inc \
+	drivers/inc \
+	drivers/CMSIS_inc \
+	drivers/device_inc
 
 # predefined macros
 DEFINES = 		\
 	STM32WL 	\
-	STM32WL55xx
-# restrict what can be printed so we don't use doubles
-DEFINES += PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS=0
-	
+	STM32WL55xx	
 
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
@@ -109,7 +111,7 @@ ASFLAGS += $(OPTIMIZE_FLAGS)
 
 # add on linker-specific flags
 # specify the linker script to use
-LDFLAGS += -T"STM32WL55JCIX_FLASH.ld"
+LDFLAGS += -T"STM32WL55XX_FLASH_CM4.ld"
 # if any system libraries are used, include their code with the executable by statically linking it
 LDFLAGS += -static
 # note: if you want to use the "-Wl" to pass options to the linker, there must be NO SPACES
