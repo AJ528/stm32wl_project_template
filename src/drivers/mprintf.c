@@ -443,10 +443,6 @@ static uint32_t reverse_string(char * restrict out_str, uint32_t out_str_len,
                     const char * restrict in_str, uint32_t in_str_len, 
                     struct format_flags flags)
 {
-    if(out_str_len == 0){
-        return 0;
-    }
-
     uint32_t pad_len = 0;
 
     // if there is padding, calculate it
@@ -472,7 +468,7 @@ static uint32_t reverse_string(char * restrict out_str, uint32_t out_str_len,
     }else{  // right align number
         if(flags.fill_zero == true){
             // if there is a sign, print that before filling with zeros
-            if(flags.sign_space == true){
+            if((flags.sign_space == true) && (out_str_len > 0)){
                 //this is safe because we know out_str_len is at least 1
                 *(out_str++) = in_str[--in_str_len];
                 out_str_len--;
