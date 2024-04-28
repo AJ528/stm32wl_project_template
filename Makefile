@@ -127,16 +127,11 @@ LDFLAGS += -static
 # remove empty sections only if not for debug
 LDFLAGS += -Wl,--gc-sections
 # according to the datasheet, the flash page size is 0x800 bytes
-# LDFLAGS += -Wl,-z,max-page-size=0x800
-# tell the linker to output a binary file
-# LDFLAGS += -Wl,--oformat=binary
+LDFLAGS += -Wl,-z,max-page-size=0x800
 # generate a map file about the output
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
+# link in libgcc to handle some low level arithmetic operations
 LDFLAGS += -lgcc
-
-# is there any point in linking -lc -lm if those also get removed by the linker script?
-# flags to investigate:
-# LDFLAGS += -Wl,--start-group -lc -lm -Wl,--end-group
 
 
 # creates the list of .c source files by looking for every .c file in the source directories
@@ -159,13 +154,16 @@ DEP_SRCS := $(CSRCS) $(SSRCS)
 DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(DEP_SRCS)))))
 
 
+
+# rule for turning the .elf program into a binary. This is the default rule that is called
+# if you type "make" with no arguments. The prerequisites are the ELF file and the
+# existence of the binary directory. 
 $(TARGET_BIN): $(TARGET_ELF) | $(BIN_DIR)
 	$(OBJCOPY) -O binary $(TARGET_ELF) $@
 
-# rule for linking the overall image from object files. This is the default rule that is called
-# if you type "make" with no arguments. The prerequisites are the object files and the existence
-# of the binary directory. 
-# listing pdebug as a prerequisite means it gets called everytime this rule is ran.
+# rule for linking the overall image from object files. The prerequisites are the object
+# files and the existence of the binary directory. Listing pdebug as a prerequisite means
+# it gets called everytime this rule is ran.
 $(TARGET_ELF): $(OBJS) pdebug | $(BIN_DIR)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
