@@ -112,7 +112,7 @@ ASFLAGS += $(OPTIMIZE_FLAGS)
 
 # add on linker-specific flags
 # specify the linker script to use
-LDFLAGS += -T"STM32WLFLASH.ld"
+LDFLAGS += -T"STM32WL_FLASH.ld"
 # if any system libraries are used, include their code with the executable by statically linking it
 LDFLAGS += -static
 # note: if you want to use the "-Wl" to pass options to the linker, there must be NO SPACES
