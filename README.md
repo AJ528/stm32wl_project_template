@@ -1,6 +1,6 @@
 # stm32wl_project_template
 
-Initially, my goal for this repository was to make a project template for any STM32WL microcontroller project. Unfortunately, each microcontroller in the STM32WL family has a different list of processor cores (CM0 vs CM4, single vs dual core), interrupts, and memory size/layout. This means that each microcontroller needs a unique linker script, startup file, and device header.
+Initially, my goal for this repository was to make a project template for any STM32WL microcontroller project. Unfortunately, each microcontroller in the STM32WL family has a different list of processor cores (CM0 vs CM4, single vs dual core), interrupts, and memory size/layout. This means that each microcontroller needs a unique linker script, startup file, and device header file.
 
 Default options/assumptions used when creating this template:
 1. The code is being compiled with the `arm-none-eabi-gcc` compiler. GCC-specific header files are used, and header files for other compilers were removed to keep the template small and simple. If you need portability, check out the [official STM32WL repo](https://github.com/STMicroelectronics/STM32CubeWL/tree/main).
