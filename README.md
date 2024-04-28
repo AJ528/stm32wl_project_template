@@ -4,8 +4,9 @@ Initially, my goal for this repository was to make a project template for any ST
 
 Default options/assumptions used when creating this template:
 1. The code is being compiled with the `arm-none-eabi-gcc` compiler. GCC-specific header files are used, and header files for other compilers were removed to keep the template small and simple. If you need portability, check out the [official STM32WL repo](https://github.com/STMicroelectronics/STM32CubeWL/tree/main).
-2. The default options will compile code for the Cortex-M4 core of an STM32WL55XX microcontroller.
-3. The STM32WL55XX is a dual-core microcontroller, but this template assumes the Cortex-M4 core is the only one being used, so the linker script allocates all flash and RAM to the one core. To make this work in a dual-core setup, I believe you need 2 individual projects and configure the 2 linker scripts so each core its own slice of memory.
+2. The code being compiled is written in C and not C++.
+3. The default options will compile code for the Cortex-M4 core of an STM32WL55XX microcontroller.
+4. The STM32WL55XX is a dual-core microcontroller, but this template assumes the Cortex-M4 core is the only core being used, so the linker script allocates all flash and RAM to the one core. To make this work in a dual-core setup, I believe you need 2 individual projects and configure the 2 linker scripts so each core its own slice of memory.
 
 I could try to get fancy and set up compiler options or predefined symbols to automatically pick the correct files based on some user input, but that would make this template more complicated than it needs to be, and the reason I originally made this was because the project templates provided by ST were confusing and seemed overly complicated to me.
 
