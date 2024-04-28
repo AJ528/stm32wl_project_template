@@ -27,6 +27,8 @@ struct format_flags {
 static const char lc_map[] = "0123456789abcdef";
 static const char uc_map[] = "0123456789ABCDEF";
 
+extern int32_t putchar_(char c);
+
 static int32_t insert_string(char * restrict out_str, uint32_t out_str_len, 
                     const char * restrict in_str, struct format_flags flags);
 static int32_t convert_number(char * restrict out_str, uint32_t out_str_len,
@@ -49,7 +51,7 @@ int32_t printf_(const char * restrict format_str, ...)
     va_end(arg);
 
     for(int32_t i = 0; i < ret; i++){
-        // putchar_(output_buffer[i]);
+        putchar_(output_buffer[i]);
     }
 
     return(ret);

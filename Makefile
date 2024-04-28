@@ -20,8 +20,9 @@ OBJ_DIR = obj
 DEP_DIR = dep
 
 # name of the output image
-TARGET_NAME := test
-TARGET := $(BIN_DIR)/$(TARGET_NAME).elf
+TARGET_NAME := output
+TARGET_ELF := $(BIN_DIR)/$(TARGET_NAME).elf
+TARGET_BIN := $(BIN_DIR)/$(TARGET_NAME).bin
 
 # locations of directories containing source files.
 # these locations should be specified relative to the makefile location.
@@ -78,6 +79,8 @@ VPATH = $(SRC_DIRS)
 
 # compiler you want to use
 CC = arm-none-eabi-gcc
+# objcopy you want to use
+OBJCOPY =  arm-none-eabi-objcopy
 
 # cpu target and instruction set
 COMMON_FLAGS = -mcpu=cortex-m4
@@ -123,7 +126,11 @@ LDFLAGS += -static
 # note: if you want to use the "-Wl" to pass options to the linker, there must be NO SPACES
 # remove empty sections only if not for debug
 LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -Wl,-z,max-page-size=0x800
+# according to the datasheet, the flash page size is 0x800 bytes
+# LDFLAGS += -Wl,-z,max-page-size=0x800
+# tell the linker to output a binary file
+# LDFLAGS += -Wl,--oformat=binary
+# generate a map file about the output
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
 LDFLAGS += -lgcc
 
@@ -152,12 +159,14 @@ DEP_SRCS := $(CSRCS) $(SSRCS)
 DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(DEP_SRCS)))))
 
 
+$(TARGET_BIN): $(TARGET_ELF) | $(BIN_DIR)
+	$(OBJCOPY) -O binary $(TARGET_ELF) $@
 
 # rule for linking the overall image from object files. This is the default rule that is called
 # if you type "make" with no arguments. The prerequisites are the object files and the existence
 # of the binary directory. 
 # listing pdebug as a prerequisite means it gets called everytime this rule is ran.
-$(TARGET): $(OBJS) pdebug | $(BIN_DIR)
+$(TARGET_ELF): $(OBJS) pdebug | $(BIN_DIR)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 # rule to make object files from .c source files. The recipe to build the .o file is specified here. 

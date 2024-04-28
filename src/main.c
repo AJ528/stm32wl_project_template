@@ -58,8 +58,7 @@ int main(void)
 {
     UART_init();
 
-    char buffer[16] = "";
-    sprintf_(buffer, "Hello world!\n");
+    printf_("Hello world!\n");
 
     return (0);
 }
