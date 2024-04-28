@@ -41,7 +41,8 @@ INC_DIRS = \
 # predefined macros
 DEFINES = 		\
 	STM32WL 	\
-	STM32WL55xx	
+	STM32WL55xx	\
+	CORE_CM4
 
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
@@ -111,7 +112,7 @@ ASFLAGS += $(OPTIMIZE_FLAGS)
 
 # add on linker-specific flags
 # specify the linker script to use
-LDFLAGS += -T"STM32WL55XX_FLASH_CM4.ld"
+LDFLAGS += -T"STM32WLFLASH.ld"
 # if any system libraries are used, include their code with the executable by statically linking it
 LDFLAGS += -static
 # note: if you want to use the "-Wl" to pass options to the linker, there must be NO SPACES

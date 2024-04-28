@@ -14,10 +14,12 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Memories definition */
 /* this information is given in the datasheet or other documentation */
+/* if you are using multiple cores, you will want to divide up the flash
+   and ram so each core gets an exclusive slice of ram and flash. */
 MEMORY
 {
-  RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 0x00010000
-  RAM2   (xrw)   : ORIGIN = 0x10000000, LENGTH = 0x00008000
+  RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 0x00008000
+  RAM2   (xrw)   : ORIGIN = 0x20008000, LENGTH = 0x00008000
   FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 0x00040000
 }
 
