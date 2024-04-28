@@ -34,7 +34,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* interrupt table */
     . = ALIGN(4);
-  } >FLASH
+  } > FLASH
 
   /* normal program code instructions is compiled into ".text" sections, and these
      sections should also be placed in flash memory */
@@ -46,7 +46,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbol at end of code */
-  } >FLASH
+  } > FLASH
 
   /* variables defined as constant and other unchanging data is compiled into
      ".rodata" sections, and these should also be placed in flash memory */
@@ -56,7 +56,7 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } > FLASH
 
   /*
    based on my research, I believe .ARM.extab* and .ARM.exidx* sections are only 
@@ -71,7 +71,7 @@ SECTIONS
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
-  } >FLASH
+  } > FLASH
   
   .ARM :
   {
@@ -80,7 +80,7 @@ SECTIONS
     *(.ARM.exidx*)
     __exidx_end = .;
     . = ALIGN(4);
-  } >FLASH
+  } > FLASH
 
 
   /* Used by the startup function to initialize data */
@@ -98,17 +98,16 @@ SECTIONS
     *(.data*)          /* .data* sections */
     *(.RamFunc)        /* .RamFunc sections */
     *(.RamFunc*)       /* .RamFunc* sections */
-
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
 
 /* 
- ">RAM AT> FLASH" means the data belongs in RAM but is stored in FLASH.
+ "> RAM AT > FLASH" means the data belongs in RAM but is stored in FLASH.
  the .data section is for initialized objects meant for RAM, but they cannot
  exist in RAM until the MCU is powered up. After power-up, but before calling
  main(), the objects are copied from FLASH to their correct location in RAM.
 */
-  } >RAM AT> FLASH
+  } > RAM AT > FLASH
 
   /* Uninitialized data section into "RAM" type memory */
 /* 
@@ -124,10 +123,9 @@ SECTIONS
     _sbss = .;         /* define a global symbol at bss start */
     *(.bss)
     *(.bss*)
-
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-  } >RAM
+  } > RAM
 
   /* stack section, used to check that there is enough RAM left */
   .stack :
@@ -136,7 +134,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM
+  } > RAM
 
 /* 
   contains metadata about the compiled object. 
