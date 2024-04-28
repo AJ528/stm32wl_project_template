@@ -28,7 +28,8 @@ TARGET := $(BIN_DIR)/$(TARGET_NAME).elf
 SRC_DIRS = \
 	src \
 	drivers \
-	drivers/utilities
+	drivers/utilities \
+	drivers/stm32wlxx_low_level
 
 # locations of directories containing header files.
 # these locations should be specified relative to the makefile location.
@@ -36,13 +37,17 @@ INC_DIRS = \
 	inc \
 	drivers/inc \
 	drivers/CMSIS_inc \
-	drivers/device_inc
+	drivers/device_inc \
+	drivers/stm32wlxx_ll_inc
 
 # predefined macros
 DEFINES = 		\
 	STM32WL 	\
 	STM32WL55xx	\
 	CORE_CM4
+
+# if you are going to use the low level drivers, define this value to expose init structures
+DEFINES += USE_FULL_LL_DRIVER
 
 # sets OPTIMIZE_FLAGS based on debug above
 ifeq ($(debug), 1)
@@ -121,7 +126,6 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-z,max-page-size=0x800
 LDFLAGS += -Xlinker -Map=$(OBJ_DIR)/$(TARGET_NAME).map
 LDFLAGS += -lgcc
-# LDFLAGS += -z defs
 
 # is there any point in linking -lc -lm if those also get removed by the linker script?
 # flags to investigate:
