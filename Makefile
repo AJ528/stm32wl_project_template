@@ -154,18 +154,16 @@ DEP_SRCS := $(CSRCS) $(SSRCS)
 DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(DEP_SRCS)))))
 
 
-
-# rule for turning the .elf program into a binary. This is the default rule that is called
-# if you type "make" with no arguments. The prerequisites are the ELF file and the
-# existence of the binary directory. 
-$(TARGET_BIN): $(TARGET_ELF) | $(BIN_DIR)
-	$(OBJCOPY) -O binary $(TARGET_ELF) $@
-
 # rule for linking the overall image from object files. The prerequisites are the object
 # files and the existence of the binary directory. Listing pdebug as a prerequisite means
 # it gets called everytime this rule is ran.
 $(TARGET_ELF): $(OBJS) pdebug | $(BIN_DIR)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+# rule for turning the .elf program into a binary.The prerequisites are the ELF file
+# and the existence of the binary directory. 
+$(TARGET_BIN): $(TARGET_ELF) | $(BIN_DIR)
+	$(OBJCOPY) -O binary $(TARGET_ELF) $@
 
 # rule to make object files from .c source files. The recipe to build the .o file is specified here. 
 # the prerequisites listed here do not include the header (.h) files needed to compile each object file
@@ -181,6 +179,7 @@ $(DEP_DIR)/%.d: %.c | $(DEP_DIR)
 # main.o : main.c defs.h
 # into:
 # main.o main.d : main.c defs.h
+# "$$$$" turns into the process id, which is a quick way to make a unique file extension
 	@set -e; rm -f $@; \
 	$(CC) -MM $(CFLAGS) $(INC_FLAGS) $< > $@.$$$$; \
 	sed 's,\($*\.o\)[ :]*,$(OBJ_DIR)/\1 $@ : ,g' < $@.$$$$ > $@; \
@@ -221,7 +220,10 @@ $(BIN_DIR) $(OBJ_DIR) $(DEP_DIR):
 
 # .PHONY targets will be run every time they are called.
 # any special recipes you want to run by name should be a phony target.
-.PHONY: clean pdebug
+.PHONY: clean pdebug debug
+
+debug: $(TARGET_ELF)
+	./debug.sh
 
 # recipe to print some debug information
 pdebug:
