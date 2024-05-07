@@ -4,7 +4,21 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "Start_GDB_Server",
+        "label": "build",
+        "type": "shell",
+        "command": "make",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "silent",
+          "panel": "dedicated",
+          "showReuseMessage": false,
+        }
+      },
+      {
+        "label": "start_gdb_server",
         "type": "shell",
         "command": "~/git_repos/stlink/build/Release/bin/st-util",
         "args": ["-p 61234"],
@@ -39,7 +53,7 @@
         }
       },
       {
-        "label": "Stop_GDB_Server",
+        "label": "stop_gdb_server",
         "type": "shell",
         "command": "pkill -15 st-util",
         "group": "none",
@@ -48,6 +62,11 @@
             "panel": "shared",
             "close": true
           },
+      },
+      {
+        "label": "debug",
+        "dependsOn":["build", "start_gdb_server"],
+        "dependsOrder": "sequence"
       }
     ]
 }

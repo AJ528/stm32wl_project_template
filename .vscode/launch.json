@@ -18,8 +18,8 @@
             "toolchainPrefix": "arm-none-eabi",
             "armToolchainPath": "/usr/bin/",
             "svdFile": "STM32WL5x_CM4.svd",
-            "preLaunchTask": "Start_GDB_Server",
-            "postDebugTask": "Stop_GDB_Server"
+            "preLaunchTask": "debug",
+            "postDebugTask": "stop_gdb_server"
         }
     ]
 }
