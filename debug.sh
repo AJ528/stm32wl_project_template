@@ -1,8 +1,9 @@
 #!/bin/bash
 
 echo "START debug.bat"
-#st-util -p 61234 &
 ~/git_repos/stlink/build/Release/bin/st-util -p 61234 &
 
-gdb-multiarch bin/output.elf
+gdb-multiarch -ex "set confirm off" -ex "target remote *:61234" \
+    -ex "load" -ex "break main" -ex "tui enable" bin/output.elf
+
 echo "DONE"
