@@ -1,0 +1,53 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start_GDB_Server",
+        "type": "shell",
+        "command": "~/git_repos/stlink/build/Release/bin/st-util",
+        "args": ["-p 61234"],
+        "group": "none",
+        "isBackground": true,
+        "presentation": {
+          "reveal": "never",
+          "panel": "shared",
+          "close": true
+        },
+        "problemMatcher":{
+            // The problem is owned by st-util
+            "owner": "st-util",
+            // The file name for reported problems is absolute.
+            "fileLocation": "absolute",
+            // The actual pattern to match problems in the output.
+            "pattern": {
+              // The regular expression. Example to match: 
+              "regexp": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$",
+              // The third match group matches the file name
+              "file": 3,
+              // The second match group matches the problem's severity. Can be ignored. Then all problems are captured as errors.
+              "severity": 2,
+              // The fourth match group matches the message.
+              "message": 4
+            },
+            "background": {
+                "activeOnStart": true,
+                "beginsPattern": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$",
+                "endsPattern": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$"
+            }
+        }
+      },
+      {
+        "label": "Stop_GDB_Server",
+        "type": "shell",
+        "command": "pkill -15 st-util",
+        "group": "none",
+        "presentation": {
+            "reveal": "never",
+            "panel": "shared",
+            "close": true
+          },
+      }
+    ]
+}
