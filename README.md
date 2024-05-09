@@ -1,5 +1,10 @@
 # stm32wl_project_template
 
+## Status
+Totally functional, but I'd like to add some more comments to the .vscode files
+
+
+## Details
 Initially, my goal for this repository was to make a project template for any STM32WL microcontroller project. Unfortunately, each microcontroller in the STM32WL family has a different list of processor cores (CM0 vs CM4, single vs dual core), interrupts, and memory size/layout. This means that each microcontroller needs a unique linker script, startup file, and device header file.
 
 Default options/assumptions used when creating this template:
