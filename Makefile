@@ -153,6 +153,7 @@ DEP_SRCS := $(CSRCS) $(SSRCS)
 # and replacing it with a "d"
 DEPS := $(addprefix $(DEP_DIR)/, $(addsuffix .d, $(notdir $(basename $(DEP_SRCS)))))
 
+#the first recipe listed is the one that will be called by default if you type "make" with no arguments
 
 # rule for linking the overall image from object files. The prerequisites are the object
 # files and the existence of the binary directory. Listing pdebug as a prerequisite means
@@ -220,7 +221,7 @@ $(BIN_DIR) $(OBJ_DIR) $(DEP_DIR):
 
 # .PHONY targets will be run every time they are called.
 # any special recipes you want to run by name should be a phony target.
-.PHONY: clean pdebug debug
+.PHONY: clean pdebug debug help
 
 debug: $(TARGET_ELF)
 	./debug.sh
@@ -233,6 +234,14 @@ pdebug:
 # recipe to remove the build directories and clean up the workspace
 clean:
 	rm -r $(BIN_DIR) $(OBJ_DIR) $(DEP_DIR)
+
+# recipe to print usage information
+help:
+	@echo "               make: rebuilds source code, which regenerates $(TARGET_ELF)"
+	@echo "make $(TARGET_BIN): rebuilds source code, then uses $(OBJCOPY) to generate $(TARGET_BIN)"
+	@echo "         make clean: cleans the build output by deleting all generated files"
+	@echo "         make debug: rebuilds source code, then calls debug.sh to autostart debugging"
+	@echo "          make help: displays this help message" 
 
 # if we are not cleaning the workspace, include the dependency files.
 # the rules in included files are combined with pre-existing rules to

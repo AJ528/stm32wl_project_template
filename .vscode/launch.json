@@ -1,24 +1,39 @@
+// this launch.json file configures the Cortex-Debug extension to start GDB and connect to a remote GDB server
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
+            // name of the configuration, this will appear in the dropdown menu
             "name": "Cortex Debug",
+            // what folder to run this launch configuration in
             "cwd": "${workspaceFolder}",
+            // path to the executable you want to run
             "executable": "./bin/output.elf",
+            // "request" can be "launch" or "attach". Use "launch" to tell vscodium how to start
+            // the app in debug mode before attaching to it.
             "request": "launch",
+            // "type" must be "cortex-debug", this tells vscodium to use the Cortex-Debug extension
             "type": "cortex-debug",
+            // name a function you want to break on entry to
             "runToEntryPoint": "main",
+            // pick the GDB server type. For a custom server use "external"
             "servertype": "external",
-            // "showDevDebugOutput": "raw",
+            // if you use an external server you must specify the target to connect to.
+            // can be either "hostname:port" or path to a serial port
             "gdbTarget": "*:61234",
+            // since we aren't using the standard GDB, specify the custom gdb program to use
             "gdbPath": "gdb-multiarch",
+            // Cortex-Debug extension assumes a prefix of "arm-none-eabi", but it doesn't hurt to be explicit
             "toolchainPrefix": "arm-none-eabi",
+            // give the path where arm-none-eabi-objdump and arm-none-eabi-nm are located
             "armToolchainPath": "/usr/bin/",
+            // an svd file is optional, but by providing it you can use the xperipherals window to read peripheral register values
             "svdFile": "STM32WL5x_CM4.svd",
+            // specify any tasks you want to run before this configuration is launched. In this case the "debug" task
+            // rebuilds the project and starts the GDB server in the background.
+            // tasks are defined in the tasks.json file
             "preLaunchTask": "debug",
+            // specify any tasks you want to run after stopping the debug session. In this case stopping the gdb server
             "postDebugTask": "stop_gdb_server"
         }
     ]

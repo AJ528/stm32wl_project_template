@@ -3,32 +3,62 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
+      // this task rebuilds the project
       {
+        // name of the task, this is how tasks are identified
         "label": "build",
+        // "type" can be "process" or "shell". "shell" will run the command
+        // inside a shell (like bash) and can evaluate shell commands like "if"
         "type": "shell",
+        // the command to be executed. In this case calling make without any 
+        // arguments will automatically rebuild the executable
         "command": "make",
+        // "group" allows you to specify if the task belongs to the "build"
+        // group or "test" group
         "group": {
           "kind": "build",
+          // by specifying this task is a "build" task and it is the default,
+          // vscodium will automatically run this task to rebuild the program
+          // using the CTRL+SHIFT+B shortcut
           "isDefault": true
         },
+        // presentation configures a panel that may appear to give information
+        // about the status of the task
         "presentation": {
+          // "reveal" controls when the terminal running the task is shown
+          // "silent" means the terminal is only shown if there is a problem
           "reveal": "silent",
+          // "panel" controls if the panel being shown is shared with other
+          // tasks, dedicated to this task, or a new one is opened every time
           "panel": "dedicated",
+          // "showReuseMessage" controls if the "Terminal will be reused..." 
+          // message is shown
           "showReuseMessage": false,
         }
       },
+      // this task starts the gdb server using st-util. Technically, the Cortex-Debug
+      // extension supports st-util natively, so you can set the servertype to 
+      // "st-util" and probably avoid all this. However, I wanted to practice 
+      // integrating with an external gdb server.
       {
         "label": "start_gdb_server",
         "type": "shell",
-        "command": "~/git_repos/stlink/build/Release/bin/st-util",
+        // calling st-util and passing the arguments "-p 61234" has st-util start
+        // the GDB server and listen on port 61234
+        "command": "st-util",
         "args": ["-p 61234"],
         "group": "none",
+        // "isBackground" controls if this command is kept alive in the background
         "isBackground": true,
         "presentation": {
           "reveal": "never",
           "panel": "shared",
+          // setting "close" to true means the terminal running the task will
+          // automatically close when the task exits
           "close": true
         },
+        // setting up a problemMatch helps vscodium translate the messages being
+        // passed to the terminal
         "problemMatcher":{
             // The problem is owned by st-util
             "owner": "st-util",
@@ -36,7 +66,7 @@
             "fileLocation": "absolute",
             // The actual pattern to match problems in the output.
             "pattern": {
-              // The regular expression. Example to match: 
+              // The regular expression. Example to match: "2024-05-11T09:39:39 INFO gdb-server.c: Listening at *:61234..."
               "regexp": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$",
               // The third match group matches the file name
               "file": 3,
@@ -45,16 +75,24 @@
               // The fourth match group matches the message.
               "message": 4
             },
+            // if a task is a background task, you need to define patterns that will
+            // print to the terminal when the task starts and ends
             "background": {
+                // setting "activeOnStart" to true just forces the background monitor
+                // to start when the task does (istead of waiting for beginsPattern)
                 "activeOnStart": true,
                 "beginsPattern": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$",
                 "endsPattern": "^(.*)\\s+(DEBUG|INFO|WARN|ERROR)\\s+(.*):\\s+(.*)$"
             }
         }
       },
+      // this task stops st-util's gdb server by sending it a SIGTERM signal
+      // this task is called after stopping the debug session
       {
         "label": "stop_gdb_server",
         "type": "shell",
+        // pkill allows you to kill a process using its name instead of PID
+        // "-15" means send SIGTERM signal
         "command": "pkill -15 st-util",
         "group": "none",
         "presentation": {
@@ -63,9 +101,16 @@
             "close": true
           },
       },
+      // this is a compound task that first recompiles the source code using
+      // the "build" task, then starts the gdb server using the
+      // "start_gdb_server" task.
       {
         "label": "debug",
+        // "dependsOn" sets the names of tasks this compound task will run
         "dependsOn":["build", "start_gdb_server"],
+        // "dependsOrder" can be "sequence" or "parallel" and controls whether
+        // the tasks are run sequentially or in parallel. If run sequentially,
+        // the tasks are executed in the order listed in "dependsOn".
         "dependsOrder": "sequence"
       }
     ]
