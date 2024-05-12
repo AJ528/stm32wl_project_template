@@ -10,7 +10,7 @@ To run this code, you will need the following packages on Linux:
 - `gcc-arm-none-eabi`
 - `gdb-multiarch`
 - [stlink](https://github.com/stlink-org/stlink)
-- `vscodium`/`vscode` with the [Cortex-Debug extension](https://github.com/Marus/cortex-debug) (optional)
+- optionally `vscodium` with the [Cortex-Debug extension](https://github.com/Marus/cortex-debug)
 
 ## What is this?
 This repository serves to be a good template to start developing an embedded project on the STM32WL series of microcontrollers. As it comes, the code will compile a `Hello World!` program to run on the STM32WL55XX microcontroller. Aside from the License files and stm32wlxx low level source files and header files (only a few are used), every file in this repository serves a purpose and is necessary.
@@ -25,8 +25,6 @@ Default options/assumptions used when creating this template:
 4. The STM32WL55XX is a dual-core microcontroller, but this template assumes the Cortex-M4 core is the only core being used, so the linker script allocates all flash and RAM to the one core. To make this work in a dual-core setup, I believe you need 2 individual projects and need to configure the 2 linker scripts so each core gets its own slice of memory.
 
 I could try to get fancy and set up compiler options or predefined symbols to automatically pick the correct files based on some user input, but that would make this template more complicated than it needs to be, and the reason I originally made this was because the project templates provided by ST were confusing and seemed overly complicated to me.
-
-T
 
 So, instead of complicating the project, here are the files you need to change in order to make this template work with other STM32WL microcontrollers:
 1. Update the linker script so that the `LENGTH` of each piece of memory is accurate. Across the STM32WL family, the starting address for each piece of memory doesn't change*.
