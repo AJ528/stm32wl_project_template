@@ -10,7 +10,7 @@ To run this code, you will need the following packages on Linux:
 - `gcc-arm-none-eabi`
 - `gdb-multiarch`
 - [stlink](https://github.com/stlink-org/stlink)
-- `vscodium` or `vscode` with the [Cortex-Debug extension](https://github.com/Marus/cortex-debug) (optional)
+- optionally `vscodium` with the [Cortex-Debug extension](https://github.com/Marus/cortex-debug)
 
 ## What is this?
 This repository serves to be a good template to start developing an embedded project on the STM32WL series of microcontrollers. As it comes, the code will compile a `Hello World!` program to run on the STM32WL55XX microcontroller. Aside from the License files and stm32wlxx low level source files and header files (only a few are used), every file in this repository serves a purpose and is necessary.
