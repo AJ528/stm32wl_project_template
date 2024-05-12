@@ -26,8 +26,6 @@ Default options/assumptions used when creating this template:
 
 I could try to get fancy and set up compiler options or predefined symbols to automatically pick the correct files based on some user input, but that would make this template more complicated than it needs to be, and the reason I originally made this was because the project templates provided by ST were confusing and seemed overly complicated to me.
 
-T
-
 So, instead of complicating the project, here are the files you need to change in order to make this template work with other STM32WL microcontrollers:
 1. Update the linker script so that the `LENGTH` of each piece of memory is accurate. Across the STM32WL family, the starting address for each piece of memory doesn't change*.
 2. Swap the startup_stm32wl*.s assembly file for the one that matches your microcontroller. The list of startup assembly files can be found [here](https://github.com/STMicroelectronics/cmsis_device_wl/tree/f005e572c943bd4adf1efcc2fdc4d2f55bd6544c/Source/Templates/gcc). The biggest difference between all these startup assembly files is the interrupt vectors being defined.
